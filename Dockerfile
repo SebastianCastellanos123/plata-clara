@@ -7,7 +7,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # ---------- 2) Compilar el backend ----------
-FROM golang:1.24-alpine AS api
+FROM golang:1.25-alpine AS api
 WORKDIR /src
 COPY backend/ ./
 # "go mod tidy" descarga las dependencias y crea go.sum si aún no lo has commiteado.

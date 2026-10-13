@@ -1,0 +1,16 @@
+# Secretos: NUNCA al repositorio
+.env
+*.pem
+*.key
+
+# Dependencias y builds
+node_modules/
+frontend/dist/
+backend/bin/
+*.exe
+
+# Editor / sistema
+.DS_Store
+.idea/
+.vscode/
+coverage/

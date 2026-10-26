@@ -61,10 +61,15 @@ export default function AuthPage({ onAuth }: Props) {
         <p className="auth-lede">Anota cada gasto en segundos y mira cómo se reparte tu mes.</p>
 
         <div className="demo" aria-hidden="true">
-          <div className="bar">
-            {DEMO.map((d) => (
-              <span key={d.cat} className={`seg cat-${d.cat}`} style={{ flexGrow: d.grow }} />
-            ))}
+          <p className="demo-total">
+            <span className="mark">$ 1.152.000</span>
+          </p>
+          <div className="tray">
+            <div className="bar">
+              {DEMO.map((d) => (
+                <span key={d.cat} className={`seg cat-${d.cat}`} style={{ flexGrow: d.grow }} />
+              ))}
+            </div>
           </div>
           <ul className="demo-legend">
             {DEMO.map((d) => (

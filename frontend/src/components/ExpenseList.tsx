@@ -1,20 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { categoryLabel, dayLabel, formatCOP } from "../format";
 import type { Expense } from "../types";
+import { ChevronRight } from "./Icons";
 
 interface Props {
   expenses: Expense[];
   loading: boolean;
   editingId: string | null;
   onEdit: (e: Expense) => void;
-  onDelete: (e: Expense) => Promise<void>;
 }
 
-export default function ExpenseList({ expenses, loading, editingId, onEdit, onDelete }: Props) {
-  // Borrar pide confirmación dentro de la misma fila (sin ventanas emergentes).
-  const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
+export default function ExpenseList({ expenses, loading, editingId, onEdit }: Props) {
   // Agrupamos por día (la API ya los entrega ordenados del más reciente al más antiguo).
   const groups = useMemo(() => {
     const map = new Map<string, Expense[]>();
@@ -26,21 +22,11 @@ export default function ExpenseList({ expenses, loading, editingId, onEdit, onDe
     return [...map.entries()];
   }, [expenses]);
 
-  async function confirmDelete(e: Expense) {
-    setDeleting(true);
-    try {
-      await onDelete(e);
-    } finally {
-      setDeleting(false);
-      setConfirmId(null);
-    }
-  }
-
   if (!loading && expenses.length === 0) {
     return (
       <div className="empty-state">
         <p className="empty-title">Aquí no hay gastos todavía</p>
-        <p>Anota el primero con el formulario y aparecerá en la barra de arriba.</p>
+        <p>Anota el primero y aparecerá en la barra de arriba.</p>
       </div>
     );
   }
@@ -49,42 +35,31 @@ export default function ExpenseList({ expenses, loading, editingId, onEdit, onDe
     <div className={`list${loading ? " loading" : ""}`} aria-busy={loading}>
       {groups.map(([date, items]) => (
         <section key={date} className="day">
-          <h3>{dayLabel(date)}</h3>
+          <h3>
+            <span className="day-name">{dayLabel(date)}</span>
+            <span className="day-total">{formatCOP(items.reduce((s, e) => s + e.amount, 0))}</span>
+          </h3>
           <ul>
             {items.map((e) => (
-              <li key={e.id} className={`row${editingId === e.id ? " editing" : ""}`}>
-                <i className={`dot cat-${e.category}`} />
-                <div className="row-main">
-                  <p className="row-title">{e.description || categoryLabel(e.category)}</p>
-                  {e.description && <p className="row-sub">{categoryLabel(e.category)}</p>}
-                </div>
-                <p className="row-amount">{formatCOP(e.amount)}</p>
-
-                <div className="row-actions">
-                  {confirmId === e.id ? (
-                    <>
-                      <button className="btn small danger" disabled={deleting} onClick={() => confirmDelete(e)}>
-                        Sí, borrar
-                      </button>
-                      <button className="btn small" disabled={deleting} onClick={() => setConfirmId(null)}>
-                        Cancelar
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button className="btn small" onClick={() => onEdit(e)} aria-label={`Editar gasto de ${formatCOP(e.amount)}`}>
-                        Editar
-                      </button>
-                      <button
-                        className="btn small"
-                        onClick={() => setConfirmId(e.id)}
-                        aria-label={`Borrar gasto de ${formatCOP(e.amount)}`}
-                      >
-                        Borrar
-                      </button>
-                    </>
-                  )}
-                </div>
+              <li key={e.id}>
+                {/* Toda la fila es el botón: tocarla abre el gasto para editarlo o borrarlo. */}
+                <button
+                  type="button"
+                  className={`row${editingId === e.id ? " editing" : ""}`}
+                  aria-current={editingId === e.id ? "true" : undefined}
+                  onClick={() => onEdit(e)}
+                >
+                  <i className={`dot cat-${e.category}`} />
+                  <span className="row-main">
+                    <span className="sr-only">Editar: </span>
+                    <span className="row-title">{e.description || categoryLabel(e.category)}</span>
+                    {e.description && <span className="row-sub">{categoryLabel(e.category)}</span>}
+                  </span>
+                  <span className="row-amount">{formatCOP(e.amount)}</span>
+                  <span className="row-go">
+                    <ChevronRight />
+                  </span>
+                </button>
               </li>
             ))}
           </ul>

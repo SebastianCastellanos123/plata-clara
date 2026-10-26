@@ -64,10 +64,14 @@ export function shiftMonth(month: string, delta: number): string {
   return monthOf(new Date(y, m - 1 + delta, 1));
 }
 
-export function monthLabel(month: string): string {
+/** "2026-09" → "septiembre" */
+export function monthName(month: string): string {
   const [y, m] = month.split("-").map(Number);
-  const name = new Intl.DateTimeFormat("es-CO", { month: "long" }).format(new Date(y, m - 1, 1));
-  return `${name} ${y}`;
+  return new Intl.DateTimeFormat("es-CO", { month: "long" }).format(new Date(y, m - 1, 1));
+}
+
+export function monthLabel(month: string): string {
+  return `${monthName(month)} ${month.slice(0, 4)}`;
 }
 
 export function dayLabel(iso: string): string {
